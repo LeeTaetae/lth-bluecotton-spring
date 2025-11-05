@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.bluecotton.mapper.ShopMapper">
+
+    <select id="selectAll" resultType="com.app.bluecotton.domain.dto.ProductListResponseDTO">
+        SELECT TBP.ID , TBP.PRODUCT_NAME, TBP.PRODUCT_TYPE, TBP.PRODUCT_PRICE, TBP.PRODUCT_PURCHASE_TYPE,
+        TBR.AVG_RATING, TBR.REVIEW_COUNT, TBPL.LIKE_COUNT, TBPI.PRODUCT_IMAGE_PATH, TBPI.PRODUCT_IMAGE_NAME
+        FROM TBL_PRODUCT TBP
+        JOIN (SELECT PRODUCT_ID,
+        ROUND(AVG(PRODUCT_REVIEW_RATING), 1)  AS "AVG_RATING" ,
+        COUNT(ID) AS "REVIEW_COUNT"
+        FROM TBL_PRODUCT_REVIEW
+        GROUP BY PRODUCT_ID
+        ) TBR
+        ON TBR.PRODUCT_ID = TBP.ID
+        JOIN (
+        SELECT PRODUCT_ID, COUNT(ID) AS "LIKE_COUNT"
+        FROM TBL_PRODUCT_LIKE
+        GROUP BY PRODUCT_ID
+        ) TBPL
+        ON TBPL.PRODUCT_ID = TBP.ID
+        JOIN (
+        SELECT PRODUCT_ID, PRODUCT_IMAGE_PATH, PRODUCT_IMAGE_NAME
+        FROM TBL_PRODUCT_IMAGE
+        ) TBPI
+        ON TBPI.PRODUCT_ID = TBP.ID
+    </select>
+    
+    <select id="selectByKeyword" parameterType="String" resultType="com.app.bluecotton.domain.dto.ProductListResponseDTO">
+        SELECT TBP.ID , TBP.PRODUCT_NAME, TBP.PRODUCT_TYPE, TBP.PRODUCT_PRICE, TBP.PRODUCT_PURCHASE_TYPE,
+        TBR.AVG_RATING, TBR.REVIEW_COUNT, TBPL.LIKE_COUNT, TBPI.PRODUCT_IMAGE_PATH, TBPI.PRODUCT_IMAGE_NAME
+        FROM TBL_PRODUCT TBP
+        JOIN (SELECT PRODUCT_ID,
+        ROUND(AVG(PRODUCT_REVIEW_RATING), 1)  AS "AVG_RATING" ,
+        COUNT(ID) AS "REVIEW_COUNT"
+        FROM TBL_PRODUCT_REVIEW
+        GROUP BY PRODUCT_ID
+        ) TBR
+        ON TBR.PRODUCT_ID = TBP.ID
+        JOIN (
+        SELECT PRODUCT_ID, COUNT(ID) AS "LIKE_COUNT"
+        FROM TBL_PRODUCT_LIKE
+        GROUP BY PRODUCT_ID
+        ) TBPL
+        ON TBPL.PRODUCT_ID = TBP.ID
+        JOIN (
+        SELECT PRODUCT_ID, PRODUCT_IMAGE_PATH, PRODUCT_IMAGE_NAME
+        FROM TBL_PRODUCT_IMAGE
+        ) TBPI
+        ON TBPI.PRODUCT_ID = TBP.ID
+        WHERE PRODUCT_NAME LIKE '%'||#{productName}||'%'
+    </select>
+
+    <insert id="insert">
+        MY INSERT QUERY
+    </insert>
+
+    <update id="update">
+        MY UPDATE QUERY
+    </update>
+
+    <delete id="delete">
+        MY DELETE QUERY
+    </delete>
+
+</mapper>
