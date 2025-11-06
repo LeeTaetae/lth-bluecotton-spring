@@ -12,12 +12,12 @@ public class ProductListResponseDTO {
     private Long id;
     private String productName;
     private String productType;
-    private String productPrice;
+    private Integer productPrice;
     private String productPurchaseType;
-    private Double avgRating;
-    private Integer reviewCount;
-    private Integer likeCount;
-    private String productImagePath;
-    private String productImageName;
+    private Double productAvgRating;
+    private Integer productReviewCount;
+    private Integer productLikeCount;
+    private String productImageUrl;
+
 
 }

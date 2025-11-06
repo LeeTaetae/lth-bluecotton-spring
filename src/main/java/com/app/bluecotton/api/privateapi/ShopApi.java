@@ -9,12 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/shop/*")
@@ -24,14 +22,12 @@ public class ShopApi {
 
     private final ShopService shopService;
 
-    @GetMapping("")
-    // 메인 페이지 상품 전체 조회
-    public ResponseEntity<ApiResponseDTO> getProducts(){
-
-        log.info("get 요청 들어옴");
-
-        List<ProductListResponseDTO> products = shopService.getProducts();
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("상품 전체 조회 성공", products));
+    // 상품 조건 조회
+    @PostMapping("")
+    public ResponseEntity<ApiResponseDTO> getProductsByFilter(@RequestBody Map<String, Object> params) {
+        log.info("상품 조건 조회 요청 들어옴: {}", params);
+        List<ProductListResponseDTO> products = shopService.getProductByFilter(params);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("상품 조건 조회 성공", products));
     }
 
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
@@ -13,14 +14,8 @@ public class ShopDAO {
 
     private final ShopMapper shopMapper;
 
-    // 상품 전체 조회
-    public List<ProductListResponseDTO> findAll() {
-        return shopMapper.selectAll();
-    }
-
-    // 상품 키워드 검색 조회
-    public ProductListResponseDTO findByProductName(String productName) {
-        return shopMapper.selectByKeyword(productName);
+    public List<ProductListResponseDTO> findProductsByFilter(Map<String,Object> params){
+        return shopMapper.selectProductsByFilter(params);
     }
 
 }

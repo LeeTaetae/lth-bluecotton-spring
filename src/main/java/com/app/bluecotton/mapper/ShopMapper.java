@@ -4,14 +4,12 @@ import com.app.bluecotton.domain.dto.ProductListResponseDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ShopMapper {
 
-    // 샵 메인 페이지 상품 전체 조회
-    public List<ProductListResponseDTO> selectAll();
-
-    // 샵 검색 상품 조회
-    public ProductListResponseDTO selectByKeyword(String productName);
+    // 상품 조건 조회
+    public List<ProductListResponseDTO> selectProductsByFilter(Map<String,Object> params);
 
 }
