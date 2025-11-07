@@ -39,6 +39,7 @@ public class MemberVO {
     {
         this.memberPicturePath = "/default";
         this.memberPictureName = "member.jpg";
+        this.memberAddress = "경기도 성남시 분당구 이매로 143번길 10";
         this.memberNickname = "임시닉네임";
         this.memberProvider = "local";
         this.memberRank = "rookie";
@@ -52,6 +53,5 @@ public class MemberVO {
         this.memberNickname = memberInsertSocialVO.getMemberNickname();
         this.memberPictureName = memberInsertSocialVO.getMemberPictureName();
         this.memberPicturePath = memberInsertSocialVO.getMemberPicturePath();
-        this.memberProvider = memberInsertSocialVO.getMemberProvider();
-    }
+        this.memberProvider = memberInsertSocialVO.getMemberProvider(); }
 };
