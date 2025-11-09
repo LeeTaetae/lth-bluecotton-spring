@@ -1,9 +1,9 @@
 package com.app.bluecotton.repository;
 
-import com.app.bluecotton.domain.dto.post.PostMainDTO;
-import com.app.bluecotton.domain.dto.post.PostModifyDTO;
-import com.app.bluecotton.domain.dto.post.SomCategoryDTO;
+import com.app.bluecotton.domain.dto.post.*;
+import com.app.bluecotton.domain.vo.post.PostCommentVO;
 import com.app.bluecotton.domain.vo.post.PostDraftVO;
+import com.app.bluecotton.domain.vo.post.PostReplyVO;
 import com.app.bluecotton.domain.vo.post.PostVO;
 import com.app.bluecotton.mapper.PostMapper;
 import lombok.RequiredArgsConstructor;
@@ -53,14 +53,6 @@ public class PostDAO {
         postMapper.deleteLikesByPostId(postId);
     }
 
-    public void deleteCommentsByPostId(Long postId){
-        postMapper.deleteCommentsByPostId(postId);
-    }
-
-    public void deleteRepliesByPostId(Long postId) {
-        postMapper.deleteRepliesByPostId(postId);
-    }
-
     public void deletePostImages(Long postId) {
         postMapper.deletePostImages(postId);
     }
@@ -69,8 +61,8 @@ public class PostDAO {
         postMapper.deleteReportsByPostId(postId);
     }
 
-    public void deleteRecectsByPostId(Long postId) {
-        postMapper.deleteRecectsByPostId(postId);
+    public void deleteRecentsByPostId(Long postId) {
+        postMapper.deleteRecentsByPostId(postId);
     }
 
 //    임시 저장 등록
@@ -91,5 +83,68 @@ public class PostDAO {
     public void update(PostVO postVO) {
         postMapper.update(postVO);
     }
+
+    // 게시글 상세 조회
+    public PostDetailDTO findPostDetailById(Long id) {
+        return postMapper.selectPostDetailById(id);
+    }
+
+    // 게시글 댓글 조회
+    public List<PostCommentDTO> findPostCommentsByPostId(Long postId) {
+        return postMapper.selectCommentsByPostId(postId);
+    }
+
+    // 게시글 답글 조회
+    public List<PostReplyDTO> findPostRepliesByPostId(Long commentId) {
+        return postMapper.selectRepliesByCommentId(commentId);
+    }
+
+    // 조회수 + 1(상세 조회 시)
+    public void updateReadCount(Long postId) {
+        postMapper.updateReadCount(postId);
+    }
+
+    // 최근 본 게시물 추가(상세 조회 시)
+    public void registerRecent(Long memberId ,Long postId) {
+        postMapper.insertOrUpdateRecentView(memberId, postId);
+    }
+
+    // 댓글 추가
+    public void insertComment(PostCommentVO postCommentVO) {
+        postMapper.insertComment(postCommentVO);
+    }
+
+    // 답글 추가
+    public void insertReply(PostReplyVO postReplyVO) {
+        postMapper.insertReply(postReplyVO);
+    }
+
+    // 댓글 삭제
+    public void deleteComment(Long commentId) {
+        postMapper.deleteComment(commentId);
+    }
+
+    // 답글 삭제
+    public void deleteReply(Long ReplyId) {
+        postMapper.deleteReply(ReplyId);
+    }
+
+    // 좋아요 여부
+    public boolean existsLike(Long postId, Long memberId) {
+        return postMapper.existsLike(postId, memberId) > 0;
+    }
+
+    // 좋아요 등록
+    public void insertLike(Long postId, Long memberId) {
+        postMapper.insertLike(postId, memberId);
+    }
+
+    // 좋아요 삭제
+    public void deleteLike(Long postId, Long memberId) {
+        postMapper.deleteLike(postId, memberId);
+    }
+
+
+
 
 }

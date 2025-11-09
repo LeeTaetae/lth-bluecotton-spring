@@ -1,9 +1,9 @@
 package com.app.bluecotton.service;
 
-import com.app.bluecotton.domain.dto.post.PostMainDTO;
-import com.app.bluecotton.domain.dto.post.PostModifyDTO;
-import com.app.bluecotton.domain.dto.post.SomCategoryDTO;
+import com.app.bluecotton.domain.dto.post.*;
+import com.app.bluecotton.domain.vo.post.PostCommentVO;
 import com.app.bluecotton.domain.vo.post.PostDraftVO;
+import com.app.bluecotton.domain.vo.post.PostReplyVO;
 import com.app.bluecotton.domain.vo.post.PostVO;
 import com.app.bluecotton.repository.PostDAO;
 import lombok.RequiredArgsConstructor;
@@ -61,11 +61,9 @@ public class PostServiceImpl implements PostService {
     @Override
     public void withdraw(Long postId) {
         postDAO.deleteLikesByPostId(postId);
-        postDAO.deleteRepliesByPostId(postId);
-        postDAO.deleteCommentsByPostId(postId);
-        postDAO.deletePostImages(postId);
-        postDAO.deleteRecectsByPostId(postId);
         postDAO.deleteReportsByPostId(postId);
+        postDAO.deletePostImages(postId);
+        postDAO.deleteRecentsByPostId(postId);
 
         postDAO.deletePostById(postId);
     }
@@ -79,12 +77,73 @@ public class PostServiceImpl implements PostService {
 //    수정 게시판 조회 서비스
     @Override
     public PostModifyDTO getPostForUpdate(Long id) {
+        Long memberId = 1L;
         return postDAO.findByIdForUpdate(id);
+    }
+
+//    게시판 수정 서비스
+    @Override
+    public void modifyPost(PostVO postVO) {
+        postDAO.update(postVO);
     }
 
 //    게시판 조회 서비스
     @Override
-    public void modifyPost(PostVO postVO) {
-        postDAO.update(postVO);
+    public PostDetailDTO getPostDetail(Long postId) {
+
+        // 조회수 + 1
+        postDAO.updateReadCount(postId);
+
+        // 최근 본 게시물 추가
+        Long memberId = 1L;
+        postDAO.registerRecent(memberId, postId);
+
+        //  게시글 상세 내용 조회
+        PostDetailDTO post = postDAO.findPostDetailById(postId);
+        List<PostCommentDTO> comments = postDAO.findPostCommentsByPostId(postId);
+
+        // 각 댓글에 대댓글 매핑
+        for (PostCommentDTO comment : comments) {
+            List<PostReplyDTO> replies = postDAO.findPostRepliesByPostId(comment.getCommentId());
+            comment.setReplies(replies);
+        }
+
+        post.setComments(comments);
+        return post;
+    }
+
+//    댓글 등록 서비스
+    @Override
+    public void insertComment(PostCommentVO postCommentVO) {
+        postDAO.insertComment(postCommentVO);
+    }
+
+
+//    답글 등록 서비스
+    @Override
+    public void insertReply(PostReplyVO postReplyVO) {
+        postDAO.insertReply(postReplyVO);
+    }
+
+//    댓글 삭제 서비스
+    @Override
+    public void deleteComment(Long commentId) {
+        postDAO.deleteComment(commentId);
+    }
+
+//    답글 삭제 서비스
+    @Override
+    public void deleteReply(Long replyId) {
+        postDAO.deleteReply(replyId);
+    }
+
+//    개시글 좋아요 서비스
+    @Override
+    public void toggleLike(Long postId, Long memberId) {
+        if (postDAO.existsLike(postId, memberId)) {
+            postDAO.deleteLike(postId, memberId); // 좋아요 취소
+        } else {
+            postDAO.insertLike(postId, memberId); // 좋아요 추가
+        }
     }
 }

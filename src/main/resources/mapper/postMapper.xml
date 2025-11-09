@@ -33,18 +33,15 @@
         ) THEN 1
         ELSE 0
         END AS POST_IS_LIKE
-
         FROM TBL_POST TBP
         JOIN TBL_MEMBER TBM ON TBP.MEMBER_ID = TBM.ID
         LEFT JOIN TBL_SOM TBS ON TBP.SOM_ID = TBS.ID
         LEFT JOIN TBL_MEMBER_PROFILE TBMP ON TBM.ID = TBMP.MEMBER_ID
         LEFT JOIN TBL_POST_IMAGE TPI ON TBP.ID = TPI.POST_ID
-
         WHERE 1=1
         <if test="somCategory != null and somCategory != ''">
             AND UPPER(TBS.SOM_CATEGORY) = UPPER(#{somCategory})
         </if>
-
         <choose>
             <when test="orderType == 'view'">
                 ORDER BY TBP.POST_READ_COUNT DESC, TBP.ID DESC
@@ -63,7 +60,7 @@
 
     <!-- 게시글 등록 -->
     <insert id="insert" parameterType="com.app.bluecotton.domain.vo.post.PostVO">
-        <selectKey keyProperty="id" order="BEFORE" resultType="long">
+        <selectKey keyProperty="id" order="BEFORE" resultType="Long">
             SELECT SEQ_POST.NEXTVAL FROM DUAL
         </selectKey>
         INSERT INTO TBL_POST (
@@ -112,9 +109,8 @@
         )
     </insert>
 
-
     <!-- [게시글 등록용] 회원이 참여 중인 솜 목록 조회 -->
-    <select id="findJoinedSomsByMemberId" parameterType="long" resultType="com.app.bluecotton.domain.dto.post.SomCategoryDTO">
+    <select id="findJoinedSomsByMemberId" parameterType="Long" resultType="com.app.bluecotton.domain.dto.post.SomCategoryDTO">
         SELECT
         S.ID AS SOM_ID,
         S.SOM_CATEGORY
@@ -123,8 +119,8 @@
         WHERE SP.MEMBER_ID = #{memberId}
     </select>
 
-
-    <select id="findByIdForUpdate" parameterType="long" resultType="com.app.bluecotton.domain.dto.post.PostModifyDTO">
+    <!-- [게시글 수정용 단건 조회] -->
+    <select id="findByIdForUpdate" parameterType="Long" resultType="com.app.bluecotton.domain.dto.post.PostModifyDTO">
         SELECT
         P.ID AS POST_ID,
         P.POST_TITLE AS POST_TITLE,
@@ -138,7 +134,7 @@
     </select>
 
     <!-- [게시글 수정용] 회원이 참여 중인 솜 목록 조회 (수정 드롭다운용) -->
-    <select id="findJoinedCategories" parameterType="long" resultType="com.app.bluecotton.domain.dto.post.SomCategoryDTO">
+    <select id="findJoinedCategories" parameterType="Long" resultType="com.app.bluecotton.domain.dto.post.SomCategoryDTO">
         SELECT
         S.ID AS SOM_ID,
         S.SOM_CATEGORY
@@ -150,43 +146,50 @@
     <!-- [게시글 수정 처리] -->
     <update id="update" parameterType="com.app.bluecotton.domain.vo.post.PostVO">
         UPDATE TBL_POST
-        SET
-        POST_TITLE = #{postTitle},
-        POST_CONTENT = #{postContent},
-        SOM_ID = #{somId}
+        SET POST_TITLE = #{postTitle},
+        POST_CONTENT = #{postContent}
         WHERE ID = #{id}
     </update>
 
-    <!-- 삭제 관련 -->
+    <!-- 게시글 자체 삭제 -->
     <delete id="deletePostById" parameterType="Long">
-        DELETE FROM TBL_POST WHERE ID = #{id}
+        DELETE FROM TBL_POST
+        WHERE ID = #{id}
     </delete>
 
-    <delete id="deleteLikesByPostId" parameterType="long">
-        DELETE FROM TBL_POST_LIKE WHERE POST_ID = #{postId}
+    <!-- 게시글 좋아요 삭제 -->
+    <delete id="deleteLikesByPostId" parameterType="Long">
+        DELETE FROM TBL_POST_LIKE
+        WHERE POST_ID = #{postId}
     </delete>
 
-    <delete id="deleteCommentsByPostId" parameterType="long">
-        DELETE FROM TBL_POST_COMMENT WHERE POST_ID = #{postId}
+    <!-- 특정 게시글의 이미지 삭제 -->
+    <delete id="deletePostImages" parameterType="Long">
+        DELETE FROM TBL_POST_IMAGE
+        WHERE POST_ID = #{postId}
     </delete>
 
-    <delete id="deleteRepliesByPostId" parameterType="long">
+    <!-- 특정 게시글 관련 신고 내역 삭제 -->
+    <delete id="deleteReportsByPostId" parameterType="Long">
+        DELETE FROM TBL_POST_REPORT
+        WHERE POST_ID = #{postId}
+    </delete>
+
+    <!-- 특정 게시글의 최근 본 기록 삭제 -->
+    <delete id="deleteRecentsByPostId" parameterType="Long">
+        DELETE FROM TBL_POST_RECENT
+        WHERE POST_ID = #{postId}
+    </delete>
+
+    <!-- 댓글/답글 삭제-->
+    <delete id="deleteComment" parameterType="Long">
+        DELETE FROM TBL_POST_COMMENT
+        WHERE ID = #{id}
+    </delete>
+
+    <delete id="deleteReply" parameterType="Long">
         DELETE FROM TBL_POST_REPLY
-        WHERE POST_COMMENT_ID IN (
-        SELECT ID FROM TBL_POST_COMMENT WHERE POST_ID = #{postId}
-        )
-    </delete>
-
-    <delete id="deletePostImages" parameterType="long">
-        DELETE FROM TBL_POST_IMAGE WHERE POST_ID = #{postId}
-    </delete>
-
-    <delete id="deleteReportsByPostId" parameterType="long">
-        DELETE FROM TBL_POST_REPORT WHERE POST_ID = #{postId}
-    </delete>
-
-    <delete id="deleteRecectsByPostId" parameterType="long">
-        DELETE FROM TBL_POST_RECENT WHERE POST_ID = #{postId}
+        WHERE ID = #{id}
     </delete>
 
     <!-- 임시저장 등록 -->
@@ -199,4 +202,125 @@
         )
     </insert>
 
+    <!-- 게시글 상세 조회(좋아요 여부 포함) -->
+    <select id="selectPostDetailById"
+            parameterType="Long"
+            resultType="com.app.bluecotton.domain.dto.post.PostDetailDTO">
+        SELECT
+        P.ID AS POST_ID,
+        P.POST_TITLE,
+        P.POST_CONTENT,
+        (PI.POST_IMAGE_PATH || PI.POST_IMAGE_NAME) AS POST_IMAGE_URL,
+        P.POST_CREATE_AT,
+        P.POST_READ_COUNT,
+        M.MEMBER_NICKNAME,
+        NVL(MP.MEMBER_PROFILE_PATH || MP.MEMBER_PROFILE_NAME, '/images/default_profile.png') AS MEMBER_PROFILE_URL
+        FROM TBL_POST P
+        JOIN TBL_MEMBER M ON P.MEMBER_ID = M.ID
+        LEFT JOIN TBL_MEMBER_PROFILE MP ON MP.MEMBER_ID = M.ID
+        LEFT JOIN TBL_POST_IMAGE PI ON PI.POST_ID = P.ID
+        WHERE P.ID = #{postId}
+    </select>
+
+    <!-- 게시글 댓글 전체 조회 -->
+    <select id="selectCommentsByPostId" parameterType="Long" resultType="com.app.bluecotton.domain.dto.post.PostCommentDTO">
+        SELECT
+        C.ID AS COMMENT_ID,
+        C.POST_COMMENT_CONTENT AS COMMENT_CONTENT,
+        C.POST_COMMENT_CREATE_AT AS COMMENT_CREATE_AT,
+        M.MEMBER_NICKNAME,
+        NVL(MP.MEMBER_PROFILE_PATH || MP.MEMBER_PROFILE_NAME, '/images/default_profile.png') AS MEMBER_PROFILE_URL,
+        NVL(CL.LIKE_COUNT, 0) AS COMMENT_LIKE_COUNT
+        FROM TBL_POST_COMMENT C
+        JOIN TBL_MEMBER M ON C.MEMBER_ID = M.ID
+        LEFT JOIN TBL_MEMBER_PROFILE MP ON MP.MEMBER_ID = M.ID
+        LEFT JOIN (
+        SELECT POST_COMMENT_ID, COUNT(*) AS LIKE_COUNT
+        FROM TBL_POST_COMMENT_LIKE
+        GROUP BY POST_COMMENT_ID
+        ) CL ON C.ID = CL.POST_COMMENT_ID
+        WHERE C.POST_ID = #{postId}
+        ORDER BY C.ID ASC
+    </select>
+
+    <!-- 댓글별 대댓글 전체 조회 -->
+    <select id="selectRepliesByCommentId" parameterType="Long" resultType="com.app.bluecotton.domain.dto.post.PostReplyDTO">
+        SELECT
+        R.ID AS REPLY_ID,
+        R.POST_REPLY_CONTENT AS REPLY_CONTENT,
+        R.POST_REPLY_CREATE_AT AS REPLY_CREATE_AT,
+        M.MEMBER_NICKNAME,
+        NVL(MP.MEMBER_PROFILE_PATH || MP.MEMBER_PROFILE_NAME, '/images/default_profile.png') AS MEMBER_PROFILE_URL,
+        NVL(RL.LIKE_COUNT, 0) AS REPLY_LIKE_COUNT
+        FROM TBL_POST_REPLY R
+        JOIN TBL_MEMBER M ON R.MEMBER_ID = M.ID
+        LEFT JOIN TBL_MEMBER_PROFILE MP ON MP.MEMBER_ID = M.ID
+        LEFT JOIN (
+        SELECT POST_REPLY_ID, COUNT(*) AS LIKE_COUNT
+        FROM TBL_POST_REPLY_LIKE
+        GROUP BY POST_REPLY_ID
+        ) RL ON R.ID = RL.POST_REPLY_ID
+        WHERE R.POST_COMMENT_ID = #{commentId}
+        ORDER BY R.ID ASC
+    </select>
+
+    <!-- 조회수 갱신 -->
+    <update id="updateReadCount" parameterType="Long">
+        UPDATE TBL_POST
+        SET POST_READ_COUNT = POST_READ_COUNT + 1
+        WHERE ID = #{id}
+    </update>
+
+    <!-- [최근 본 게시글 등록 or 갱신] -->
+    <insert id="insertOrUpdateRecentView" parameterType="map">
+        MERGE INTO TBL_POST_RECENT TPR
+        USING (SELECT #{memberId} AS MEMBER_ID, #{postId} AS POST_ID FROM DUAL) SRC
+        ON (TPR.MEMBER_ID = SRC.MEMBER_ID AND TPR.POST_ID = SRC.POST_ID)
+        WHEN MATCHED THEN
+        UPDATE SET TPR.POST_RECENT_CREATE_AT = SYSTIMESTAMP
+        WHEN NOT MATCHED THEN
+        INSERT (ID, MEMBER_ID, POST_ID)
+        VALUES (SEQ_POST_RECENT.NEXTVAL, SRC.MEMBER_ID, SRC.POST_ID)
+    </insert>
+
+    <!-- 댓글 등록 -->
+    <insert id="insertComment" parameterType="com.app.bluecotton.domain.vo.post.PostCommentVO">
+        INSERT INTO TBL_POST_COMMENT(
+        ID, POST_COMMENT_CONTENT, POST_COMMENT_CREATE_AT, POST_ID, MEMBER_ID
+        )
+        VALUES(
+        SEQ_POST_COMMENT.NEXTVAL, #{postCommentContent}, SYSTIMESTAMP, #{postId}, #{memberId}
+        )
+    </insert>
+
+    <!-- 답글 등록 -->
+    <insert id="insertReply" parameterType="com.app.bluecotton.domain.vo.post.PostReplyVO">
+        INSERT INTO TBL_POST_REPLY (
+        ID, POST_REPLY_CONTENT, POST_REPLY_CREATE_AT, POST_COMMENT_ID, MEMBER_ID
+        )
+        VALUES (
+        SEQ_POST_REPLY.NEXTVAL, #{postReplyContent}, SYSTIMESTAMP, #{postCommentId}, #{memberId}
+        )
+    </insert>
+
+    <!-- 좋아요 여부 확인 -->
+    <select id="existsLike" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM TBL_POST_LIKE
+        WHERE POST_ID = #{postId}
+        AND MEMBER_ID = #{memberId}
+    </select>
+
+    <!-- 좋아요 추가 -->
+    <insert id="insertLike" parameterType="map">
+        INSERT INTO TBL_POST_LIKE (ID, POST_ID, MEMBER_ID)
+        VALUES (SEQ_POST_LIKE.NEXTVAL, #{postId}, #{memberId})
+    </insert>
+
+    <!-- 좋아요 취소 -->
+    <delete id="deleteLike" parameterType="map">
+        DELETE FROM TBL_POST_LIKE
+        WHERE POST_ID = #{postId}
+        AND MEMBER_ID = #{memberId}
+    </delete>
 </mapper>
