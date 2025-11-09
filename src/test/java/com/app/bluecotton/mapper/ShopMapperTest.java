@@ -24,4 +24,22 @@ class ShopMapperTest {
         params.put("order", "신상품순");
         log.info("{}",shopMapper.selectProductsByFilter(params));
     }
+
+    @Test
+    void selectProductDetailInfo() {
+
+        Long productId = 1L;
+        log.info("상품 상세 정보: {}", shopMapper.selectProductDetailInfo(productId));
+    }
+
+
+    @Test
+    void selectProductReviewStatsTest() {
+        Map<String,Object> reviewParams = new HashMap<>();
+        reviewParams.put("id", 1L);
+        reviewParams.put("type", null);      // photo면 사진 리뷰만, null이면 전체
+        reviewParams.put("sort", "ratingHigh");
+        log.info("상품 리뷰 목록: {}", shopMapper.selectProductReviewStats(reviewParams));
+    }
+
 }
