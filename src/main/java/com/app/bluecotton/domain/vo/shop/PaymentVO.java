@@ -9,7 +9,9 @@ public class PaymentVO {
     private Long id;
     private Integer paymentPrice;
     private String paymentType;
-    private Enum paymentStatus;
+    private PaymentStatus paymentStatus;
     private Date paymentCreateAt;
     private Long orderId;
 }
+
+

@@ -45,10 +45,23 @@
         <typeAlias type="com.app.bluecotton.domain.vo.som.SomCheckVO" alias="SomCheckVO" />
         <typeAlias type="com.app.bluecotton.domain.vo.som.SomCheckImageVO" alias="SomCheckImageVO" />
 
+        <!-- som response DTO -->
+        <typeAlias type="com.app.bluecotton.domain.dto.SomCheckResponseDTO" alias="SomCheckResponseDTO" />
+
         <!-- chat -->
         <typeAlias type="com.app.bluecotton.domain.vo.chat.ChatVO" alias="ChatVO" />
         <typeAlias type="com.app.bluecotton.domain.vo.chat.ChatMemberVO" alias="ChatMemberVO" />
         <typeAlias type="com.app.bluecotton.domain.vo.chat.ChatMessageVO" alias="ChatMessageVO" />
 
+        <!-- cart -->
+        <typeAlias type="com.app.bluecotton.domain.vo.shop.CartVO" alias="CartVO" />
+
+
+        <!-- order -->
+        <typeAlias type="com.app.bluecotton.domain.vo.shop.OrderVO" alias="OrderVO" />
+
+        <!-- Payment -->
+        <typeAlias type="com.app.bluecotton.domain.vo.shop.PaymentVO" alias="PaymentVO" />
+        <typeAlias type="com.app.bluecotton.domain.vo.shop.PaymentSocialVO" alias="PaymentSocialVO" />
     </typeAliases>
 </configuration>
