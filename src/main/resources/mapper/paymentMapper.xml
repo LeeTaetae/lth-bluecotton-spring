@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.bluecotton.mapper.PaymentMapper">
+
+    <insert id="insert" parameterType="PaymentVO">
+        INSERT INTO TBL_PAYMENT ( ID, PAYMENT_PRICE, PAYMENT_TYPE, PAYMENT_STATUS, PAYMENT_CREATE_AT, ORDER_ID)
+        VALUES (
+        SEQ_PAYMENT.NEXTVAL,
+        #{paymentPrice},
+        #{paymentType},
+        #{paymentStatus},
+        SYSDATE,
+        #{orderId}
+        )
+    </insert>
+
+
+    <select id="selectById" parameterType="Long" resultType="PaymentVO">
+        SELECT ID, PAYMENT_PRICE, PAYMENT_TYPE, PAYMENT_STATUS, PAYMENT_CREATE_AT, ORDER_ID
+        FROM TBL_PAYMENT
+        WHERE ID = #{id}
+    </select>
+
+
+    <select id="selectByOrderId" parameterType="Long" resultType="PaymentVO">
+        SELECT ID, PAYMENT_PRICE, PAYMENT_TYPE, PAYMENT_STATUS, PAYMENT_CREATE_AT, ORDER_ID
+        FROM TBL_PAYMENT
+        WHERE ORDER_ID = #{orderId}
+        ORDER BY ID DESC
+    </select>
+
+    <update id="updateStatus" parameterType="PaymentVO">
+        UPDATE TBL_PAYMENT
+        SET PAYMENT_STATUS = #{paymentStatus}
+        WHERE ID = #{id}
+    </update>
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM TBL_PAYMENT
+        WHERE ID = #{id}
+    </delete>
+</mapper>

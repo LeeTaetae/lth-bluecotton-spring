@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.bluecotton.mapper.PaymentSocialMapper">
+
+    <insert id="insert" parameterType="PaymentSocialVO">
+        INSERT INTO TBL_PAYMENT_SOCIAL(ID, PAYMENT_SOCIAL_NAME, PAYMENT_SOCIAL_NUMBER, PAYMENT_ID )
+        VALUES(SEQ_PAYMENT_SOCIAL.NEXTVAL, #{paymentSocialName}, #{paymentSocialNumber}, #{paymentId})
+    </insert>
+
+    <select id="selectById" parameterType="Long" resultType="PaymentSocialVO">
+        SELECT ID, PAYMENT_SOCIAL_NAME, PAYMENT_SOCIAL_NUMBER, PAYMENT_ID
+        FROM TBL_PAYMENT_SOCIAL
+        WHERE ID = #{id}
+    </select>
+
+    <select id="selectByPaymentId" parameterType="long" resultType="PaymentSocialVO">
+        SELECT ID, PAYMENT_SOCIAL_NAME, PAYMENT_SOCIAL_NUMBER, PAYMENT_ID
+        FROM TBL_PAYMENT_SOCIAL
+        WHERE PAYMENT_ID = #{paymentId}
+        ORDER BY ID DESC
+    </select>
+
+    <update id="update" parameterType="PaymentSocialVO">
+        UPDATE TBL_PAYMENT_SOCIAL
+        SET PAYMENT_SOCIAL_NAME = #{paymentSocialName}, PAYMENT_SOCIAL_NUMBER = #{paymentSocialNumber}
+        WHERE ID = #{id}
+    </update>
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM TBL_PAYMENT_SOCIAL
+        WHERE ID = #{id}
+    </delete>
+</mapper>

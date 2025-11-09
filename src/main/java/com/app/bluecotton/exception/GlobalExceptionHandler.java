@@ -40,6 +40,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponseDTO.of(e.getMessage()));
     }
 
+   @ExceptionHandler(CartException.class)
+   public ResponseEntity<ApiResponseDTO<Object>> handleCartException(CartException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponseDTO.of(e.getMessage()));
+   }
+
 
     // 모든 예외 처리
     @ExceptionHandler(Exception.class)

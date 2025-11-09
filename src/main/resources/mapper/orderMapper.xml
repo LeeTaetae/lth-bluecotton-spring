@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.bluecotton.mapper.OrderMapper">
+    <!-- 바로 결제 시  -->
+    <insert id="insertSingle" parameterType="com.app.bluecotton.domain.dto.OrderDTO">
+        INSERT INTO TBL_ORDER (ID, ORDER_CREATE_AT, ORDER_STATUS, MEMBER_ID, PRODUCT_ID, QUANTITY, TOTAL_PRICE, CART_ID )
+        VALUES (
+        SEQ_ORDER.NEXTVAL,
+        SYSDATE,
+        #{orderStatus},
+        #{memberId},
+        #{productId},
+        #{quantity},
+        (SELECT P.PRODUCT_PRICE
+        FROM TBL_PRODUCT P
+        WHERE P.ID = #{productId}) * #{quantity},
+        NULL
+        )
+    </insert>
+
+    <!-- 장바구니에서 주문 시  -->
+    <insert id="insertCartOrder" parameterType="com.app.bluecotton.domain.dto.OrderCartDTO">
+        INSERT INTO TBL_ORDER (
+        ID,
+        ORDER_CREATE_AT,
+        ORDER_STATUS,
+        MEMBER_ID,
+        PRODUCT_ID,
+        QUANTITY,
+        TOTAL_PRICE,
+        CART_ID
+        )
+        SELECT
+        SEQ_ORDER.NEXTVAL,
+        SYSDATE,
+        #{orderStatus},
+        #{memberId},
+        C.PRODUCT_ID,
+        C.CART_QUANTITY,
+        P.PRODUCT_PRICE * C.CART_QUANTITY,
+        C.ID
+        FROM TBL_CART C
+        JOIN TBL_PRODUCT P ON C.PRODUCT_ID = P.ID
+        WHERE C.ID = #{cartId}
+        AND C.PRODUCT_ID = #{productId}
+        AND C.MEMBER_ID  = #{memberId}
+    </insert>
+
+
+    <select id="selectAllByMemberId" parameterType="Long" resultType="OrderVO">
+        SELECT ORDER_CREATE_AT,
+        ORDER_STATUS,
+        QUANTITY,
+        CART_ID,
+        PRODUCT_ID,
+        TOTAL_PRICE
+        FROM TBL_ORDER
+        WHERE MEMBER_ID = #{memberId}
+    </select>
+
+    <select id="selectByMemberIdAndOrderId" parameterType="Long" resultType="OrderVO">
+        SELECT
+        ORDER_CREATE_AT,
+        PRODUCT_ID,
+        ORDER_STATUS,
+        QUANTITY,
+        TOTAL_PRICE
+        FROM TBL_ORDER
+        WHERE MEMBER_ID = #{memberId} AND ID = #{id}
+    </select>
+
+    <update id="updateOrderStatus" parameterType="OrderVO">
+        UPDATE TBL_ORDER
+        SET ORDER_STATUS ='N'
+        WHERE ID=#{id} AND MEMBER_ID =#{memberId}
+    </update>
+
+    <delete id="delete" parameterType="Long">
+        DELETE TBL_ORDER
+        WHERE ID=#{id} AND MEMBER_ID =#{memberId}
+    </delete>
+
+    <update id="detachOrderFromCart" parameterType="long">
+        UPDATE TBL_ORDER
+        SET CART_ID = NULL
+        WHERE ORDER_STATUS = 'Y'
+        AND MEMBER_ID = #{memberId}
+    </update>
+
+
+</mapper>

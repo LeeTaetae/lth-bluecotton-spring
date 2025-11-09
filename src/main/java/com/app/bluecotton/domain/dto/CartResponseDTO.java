@@ -1,0 +1,17 @@
+package com.app.bluecotton.domain.dto;
+
+import lombok.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class CartResponseDTO {
+    private Long id;
+    private Long memberId;
+    private Long productId;
+    private Integer quantity;
+    private String productName;
+    private Integer productPrice;
+    private String productPurchaseType;
+    private Integer productStock;
+}
