@@ -26,6 +26,51 @@
         WHERE TBM.ID = #{id}
     </select>
 
+    <!--마이페이지 내가 쓴 댓글과 대댓글-->
+    <select id="readPostComment" parameterType="Long" resultType="com.app.bluecotton.domain.dto.MyPagePostCommentDTO">
+        SELECT
+        TBPC.ID                       AS comment_id,
+        TBPR.ID                       AS reply_id,
+        TBP.ID                        AS post_id,
+        TBPC.POST_COMMENT_CREATE_AT   AS post_comment_create_at,
+        TBPR.POST_REPLY_CREATE_AT     AS post_reply_create_at,
+        TBP.POST_TITLE                AS post_title,
+        TBS.SOM_CATEGORY              AS som_category
+        FROM TBL_POST TBP
+        JOIN TBL_SOM TBS
+        ON TBP.SOM_ID = TBS.ID
+        LEFT JOIN TBL_POST_COMMENT TBPC
+        ON TBPC.POST_ID = TBP.ID AND TBPC.MEMBER_ID = #{id}
+        LEFT JOIN TBL_POST_REPLY TBPR
+        ON TBPR.POST_COMMENT_ID = TBPC.ID AND TBPR.MEMBER_ID = #{id}
+        WHERE TBPC.MEMBER_ID = #{id}
+        OR TBPR.MEMBER_ID = #{id}
+    </select>
+
+    <!--마이페이지 내가 임시저장 한 글-->
+    <select id="readPostSave" parameterType="Long" resultType="com.app.bluecotton.domain.dto.MyPagePostSaveDTO">
+        SELECT TBD.ID, TBD.POST_DRAFT_TITLE, TBD.POST_DRAFT_CREATE_AT, TBS.SOM_CATEGORY
+        FROM TBL_POST_DRAFT TBD
+        JOIN TBL_SOM TBS
+        ON TBD.SOM_ID = TBS.ID
+        JOIN TBL_MEMBER TBM
+        ON TBD.MEMBER_ID = TBM.ID
+        WHERE TBM.ID = #{id}
+    </select>
+
+    <!--마이페이지 내가 최근에 본 글-->
+    <select id="readPostRecent" parameterType="Long" resultType="com.app.bluecotton.domain.dto.MyPagePostRecentDTO">
+        SELECT TBPR.ID, TBPR.POST_RECENT_CREATE_AT, TBP.POST_TITLE, TBS.SOM_CATEGORY
+        FROM TBL_POST_RECENT TBPR
+        JOIN TBL_POST TBP
+        ON TBPR.POST_ID = TBP.ID
+        JOIN TBL_MEMBER TBM
+        ON TBPR.MEMBER_ID = TBM.ID
+        JOIN TBL_SOM TBS
+        ON TBP.SOM_ID = TBS.ID
+        WHERE TBM.ID = #{id}
+    </select>
+
     <!-- 내가 작성한 글 삭제 -->
     <delete id="deletePostWrite" parameterType="Long">
         DELETE FROM TBL_POST
@@ -35,6 +80,18 @@
     <!-- 내가 좋아요한 글 삭제 -->
     <delete id="deletePostLike" parameterType="Long">
         DELETE FROM TBL_POST_LIKE
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 내가 단 댓글 삭제 -->
+    <delete id="deletePostComment" parameterType="Long">
+        DELETE FROM TBL_POST_COMMENT
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 내가 단 대댓글 삭제 -->
+    <delete id="deletePostReply" parameterType="Long">
+        DELETE FROM TBL_POST_REPLY
         WHERE ID = #{id}
     </delete>
 

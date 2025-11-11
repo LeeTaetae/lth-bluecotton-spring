@@ -29,16 +29,16 @@ public class SomApi {
     }
 
     //  솜 상세 조회
-    @PostMapping("read")
+    @GetMapping("read")
     public ResponseEntity<ApiResponseDTO> getSomById(@RequestParam Long somId) {
         SomResponseDTO data = somService.findById(somId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("솜 상세페이지를 불러왔습니다",data));
     }
 
     //  솜 카테고리별 조회
-    @PostMapping("category")
+    @GetMapping("category")
     public ResponseEntity<ApiResponseDTO> getSomByCategory(@RequestParam String somCategory) {
-        List<SomVO> data = somService.findByCategory(somCategory);
+        List<SomResponseDTO> data = somService.findByCategory(somCategory);
         log.info("category: {}", somCategory);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("솜 카테고리별로 불러왔습니다", data));
     }
@@ -46,7 +46,7 @@ public class SomApi {
     //  솜 전체 조회
     @GetMapping("all")
     public ResponseEntity<ApiResponseDTO> getAllSom() {
-        List<SomVO> data = somService.findAllSom();
+        List<SomResponseDTO> data = somService.findAllSom();
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("솜 전체를 조회했습니다", data));
     }
 

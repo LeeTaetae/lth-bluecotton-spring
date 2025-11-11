@@ -25,14 +25,13 @@ public class MyPageApi {
     private final SomService somService;
     private final MemberService memberService;
     private final MyPagePostService myPagePostService;
-    private final PostService postService;
 
     // 솜 정보 출력
     @GetMapping("read-som")
     public ResponseEntity<ApiResponseDTO> readSom() {
         log.info("솜 정보를 불러옵니다");
         log.info("출력: {}", somService.findAllSom());
-        List<SomVO> data = somService.findAllSom();
+        List<SomResponseDTO> data = somService.findAllSom();
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("솜 전체를 조회했습니다", data));
     }
 
@@ -69,15 +68,32 @@ public class MyPageApi {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("내가 좋아요한 글이 출력되었습니다", data));
     }
 
+    //    마이페이지 내가 쓴 댓글과 대댓글
+    @GetMapping("read-post-comment")
+    public ResponseEntity<ApiResponseDTO> readPostComment(@RequestParam Long id){
+        log.info("내가 쓴 댓글과 대댓글을 불러옵니다");
+        log.info("출력: {}", myPagePostService.readPostComment(id));
+        List<MyPagePostCommentDTO> data = myPagePostService.readPostComment(id);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("내가 쓴 댓글과 대댓글이 출력되었습니다", data));
+    }
+
     //    마이페이지 내가 임시저장한 글
     @GetMapping("read-post-save")
     public ResponseEntity<ApiResponseDTO> readPostSave(@RequestParam Long id){
         log.info("내가 임시저장한 글을 불러옵니다");
-        log.info("출력: {}", postService.getDraft(id));
-        PostDraftVO data = postService.getDraft(id);
+        log.info("출력: {}", myPagePostService.readPostSave(id));
+        List<MyPagePostSaveDTO> data = myPagePostService.readPostSave(id);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("내가 임시저장한 글이 출력되었습니다", data));
     }
 
+    //    마이페이지 내가 최근에 본 글
+    @GetMapping("read-post-recent")
+    public ResponseEntity<ApiResponseDTO> readPostRecent(@RequestParam Long id){
+        log.info("내가 최근에 본 글을 불러옵니다");
+        log.info("출력: {}", myPagePostService.readPostRecent(id));
+        List<MyPagePostRecentDTO> data = myPagePostService.readPostRecent(id);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("내가 최근에 본 글이 출력되었습니다", data));
+    }
     //    내가 작성한 글 삭제
     @DeleteMapping("delete-post-write")
     public ResponseEntity<ApiResponseDTO> deletePostWrite(@RequestParam Long id){
@@ -96,11 +112,20 @@ public class MyPageApi {
 
     //    내가 단 댓글 삭제
     @DeleteMapping("delete-post-comment")
-    public ResponseEntity<ApiResponseDTO> deletePostReply(@RequestParam Long id){
+    public ResponseEntity<ApiResponseDTO> deletePostComment(@RequestParam Long id){
         log.info("내가 단 댓글을 삭제합니다");
-        postService.deleteComment(id);
+        myPagePostService.deletePostComment(id);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("내가 단 댓글이 삭제되었습니다"));
     }
+
+    //    내가 단 댓글 삭제
+    @DeleteMapping("delete-post-reply")
+    public ResponseEntity<ApiResponseDTO> deletePostReply(@RequestParam Long id){
+        log.info("내가 단 대댓글을 삭제합니다");
+        myPagePostService.deletePostReply(id);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("내가 단 댓글이 삭제되었습니다"));
+    }
+
     //    내가 임시저장한 글 삭제
     @DeleteMapping("delete-post-save")
     public ResponseEntity<ApiResponseDTO> deletePostSave(@RequestParam Long id){
