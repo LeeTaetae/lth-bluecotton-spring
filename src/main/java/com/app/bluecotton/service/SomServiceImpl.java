@@ -8,7 +8,7 @@ import com.app.bluecotton.domain.vo.som.SomJoinVO;
 import com.app.bluecotton.domain.vo.som.SomVO;
 import com.app.bluecotton.exception.SomException;
 import com.app.bluecotton.mapper.SomImageMapper;
-import com.app.bluecotton.mapper.SomMapper;
+import com.app.bluecotton.service.SomImageService;
 import com.app.bluecotton.repository.SomDAO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import java.util.Optional;
 public class SomServiceImpl implements SomService {
 
     private final SomDAO somDAO;
-    private final SomImageMapper somImageMapper;
+    private final SomImageService somImageService;
     private final SomService somService;
 
     //  솜 등록
@@ -45,7 +45,7 @@ public class SomServiceImpl implements SomService {
     @Override
     public SomReadResponseDTO findById(Long somId) {
         SomReadResponseDTO somResponseDTO = somDAO.findById(somId).map(SomReadResponseDTO::new).orElseThrow(() -> new SomException("솜을 불러오지 못했습니다"));
-        List<SomImageVO> somImages = somImageMapper.selectImagesBySomId(somId);
+        List<SomImageVO> somImages = somImageService.selectImagesBySomId(somId);
         if(somImages.size() == 0){
             SomImageVO somImageVO = new SomImageVO();
             somImageVO.setSomImagePath("https://image-server.ideaflow.co.kr/uploads/1762700261.jpg");
@@ -64,7 +64,7 @@ public class SomServiceImpl implements SomService {
     public List<SomResponseDTO> findAllSom() {
         List<SomResponseDTO> somList = somDAO.findAllSom().stream().map((som) -> {
             SomResponseDTO somResponse = new SomResponseDTO(som);
-            List<SomImageVO> somImages = somImageMapper.selectImagesBySomId(som.getId());
+            List<SomImageVO> somImages = somImageService.selectImagesBySomId(som.getId());
             if(somImages.size() == 0){
                 SomImageVO somImageVO = new SomImageVO();
                 somImageVO.setSomImagePath("https://image-server.ideaflow.co.kr/uploads/1762700261.jpg");
@@ -84,7 +84,7 @@ public class SomServiceImpl implements SomService {
     public List<SomResponseDTO> findByCategoryAndType(Map<String, Object> map){
         List<SomResponseDTO> somList = somDAO.findSomListByCategoryAndType(map).stream().map((som) -> {
             SomResponseDTO somResponse = new SomResponseDTO(som);
-            List<SomImageVO> somImages = somImageMapper.selectImagesBySomId(som.getId());
+            List<SomImageVO> somImages = somImageService.selectImagesBySomId(som.getId());
             if(somImages.size() == 0){
                 SomImageVO somImageVO = new SomImageVO();
                 somImageVO.setSomImagePath("https://image-server.ideaflow.co.kr/uploads/1762700261.jpg");
