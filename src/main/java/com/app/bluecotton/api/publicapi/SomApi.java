@@ -44,8 +44,8 @@ public class SomApi {
 
     //  솜 상세 조회
     @GetMapping("read")
-    public ResponseEntity<ApiResponseDTO> getSomById(@RequestParam Long somId) {
-        SomResponseDTO data = somService.findById(somId);
+    public ResponseEntity<ApiResponseDTO> getSomById(@RequestParam Long somId, @RequestParam(defaultValue = "") String memberEmail) {
+        SomResponseDTO data = somService.findById(somId, memberEmail);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("솜 상세페이지를 불러왔습니다",data));
     }
 
@@ -54,7 +54,8 @@ public class SomApi {
     public ResponseEntity<ApiResponseDTO> getSomByCategory(
             @RequestParam(defaultValue = "all") String somCategory,
             @RequestParam(defaultValue = "all") String somType,
-            @RequestParam(defaultValue = "1") int page
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "") String memberEmail
     ) {
         Map<String, Object> params = new HashMap<>();
         Map<String, Object> resultData = new HashMap<>();
@@ -62,6 +63,7 @@ public class SomApi {
         params.put("somCategory", somCategory);
         params.put("somType", somType);
         params.put("page", page);
+        params.put("memberEmail", memberEmail);
         if (somCategory.equals("all") && somType.equals("all")) {
             message = "솜 전체를 불러왔습니다.";
         } else {

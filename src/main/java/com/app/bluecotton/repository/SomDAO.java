@@ -3,6 +3,7 @@ package com.app.bluecotton.repository;
 import com.app.bluecotton.domain.dto.SomJoinResponseDTO;
 import com.app.bluecotton.domain.dto.SomResponseDTO;
 import com.app.bluecotton.domain.vo.som.SomJoinVO;
+import com.app.bluecotton.domain.vo.som.SomLikeVO;
 import com.app.bluecotton.domain.vo.som.SomVO;
 import com.app.bluecotton.mapper.MyTestMapper;
 import com.app.bluecotton.mapper.SomMapper;
@@ -66,5 +67,21 @@ public class SomDAO {
 
     public void deleteSomJoin(Long somJoinId) {
         somMapper.deleteSomJoin(somJoinId);
+    }
+
+    public void insertSomLike(SomLikeVO somLikeVO) {
+        somMapper.insertSomLike(somLikeVO);
+    }
+
+    public Integer selectSomLikeCount(Long somId) {
+        return somMapper.selectSomLikeCount(somId);
+    }
+
+    public Boolean selectIsSomLike(SomLikeVO somLikeVO) {
+        return somMapper.selectIsSomLike(somLikeVO);
+    }
+
+    public void deleteSomLike(SomLikeVO somLikeVO) {
+        somMapper.deleteSomLike(somLikeVO);
     }
 }

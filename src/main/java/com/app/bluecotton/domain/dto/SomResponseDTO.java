@@ -25,6 +25,7 @@ public class SomResponseDTO {
     private String somContent;
     private Integer somCount;
     private Long memberId;
+    private Boolean isSomLike;
 
     private List<SomImageVO> somImageList;
     private List<SomJoinResponseDTO> somJoinList;

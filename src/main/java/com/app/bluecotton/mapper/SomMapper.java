@@ -3,6 +3,7 @@ package com.app.bluecotton.mapper;
 import com.app.bluecotton.domain.dto.SomJoinResponseDTO;
 import com.app.bluecotton.domain.dto.SomResponseDTO;
 import com.app.bluecotton.domain.vo.som.SomJoinVO;
+import com.app.bluecotton.domain.vo.som.SomLikeVO;
 import com.app.bluecotton.domain.vo.som.SomVO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -40,4 +41,12 @@ public interface SomMapper {
     public List<SomJoinResponseDTO> selectAllSomJoinList(Long somId);
 
     public void deleteSomJoin(Long somJoinId);
+
+    public void insertSomLike(SomLikeVO somLikeVO);
+
+    public Integer selectSomLikeCount(Long somId);
+
+    public Boolean selectIsSomLike(SomLikeVO somLikeVO);
+
+    public void deleteSomLike(SomLikeVO somLikeVO);
 }

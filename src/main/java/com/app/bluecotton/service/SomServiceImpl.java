@@ -6,6 +6,7 @@ import com.app.bluecotton.domain.dto.SomReadResponseDTO;
 import com.app.bluecotton.domain.dto.SomResponseDTO;
 import com.app.bluecotton.domain.vo.som.SomImageVO;
 import com.app.bluecotton.domain.vo.som.SomJoinVO;
+import com.app.bluecotton.domain.vo.som.SomLikeVO;
 import com.app.bluecotton.domain.vo.som.SomVO;
 import com.app.bluecotton.exception.SomException;
 import com.app.bluecotton.repository.SomDAO;
@@ -40,9 +41,13 @@ public class SomServiceImpl implements SomService {
 
     //  솜 상세 조회
     @Override
-    public SomResponseDTO findById(Long somId) {
+    public SomResponseDTO findById(Long somId, String memberEmail) {
         SomResponseDTO somResponseDTO = somDAO.findById(somId).map(SomResponseDTO::new).orElseThrow(() -> new SomException("솜을 불러오지 못했습니다"));
         List<SomImageVO> somImages = somImageService.selectImagesBySomId(somId);
+        Long currentMemberId = memberService.getMemberIdByMemberEmail(memberEmail);
+        SomLikeVO somLikeVO = new SomLikeVO();
+        somLikeVO.setSomId(somId);
+        somLikeVO.setMemberId(currentMemberId);
         if(somImages.isEmpty()){
             SomImageVO somImageVO = new SomImageVO();
             somImageVO.setSomImagePath("https://image-server.ideaflow.co.kr/uploads/1762700261.jpg");
@@ -50,6 +55,8 @@ public class SomServiceImpl implements SomService {
             somImageVO.setSomImageName("1762700261.jpg");
             somImages.add(somImageVO);
         }
+        somResponseDTO.setSomLike(somDAO.selectSomLikeCount(somId));
+        somResponseDTO.setIsSomLike(somDAO.selectIsSomLike(somLikeVO));
         somResponseDTO.setMemberSomLeader(new MemberSomLeaderResponseDTO(memberService.getMemberById(somResponseDTO.getMemberId())));
         somResponseDTO.setSomCount(somDAO.readSomJoinList(somId).size());
         somResponseDTO.setSomJoinList(somDAO.readSomJoinList(somId));
@@ -72,7 +79,7 @@ public class SomServiceImpl implements SomService {
                 somImages.add(somImageVO);
             }
             somResponseDTO.setMemberSomLeader(new MemberSomLeaderResponseDTO(memberService.getMemberById(somResponseDTO.getMemberId())));
-            log.info("{}", memberService.getMemberById(somResponseDTO.getMemberId()));
+            somResponseDTO.setSomLike(somDAO.selectSomLikeCount(som.getId()));
             somResponseDTO.setSomCount(somDAO.readSomJoinList(som.getId()).size());
             somResponseDTO.setSomJoinList(somDAO.readSomJoinList(som.getId()));
             somResponseDTO.setSomImageList(somImages);
@@ -87,6 +94,11 @@ public class SomServiceImpl implements SomService {
         List<SomResponseDTO> somList = somDAO.findSomListByCategoryAndType(map).stream().map((som) -> {
             SomResponseDTO somResponseDTO = new SomResponseDTO(som);
             List<SomImageVO> somImages = somImageService.selectImagesBySomId(som.getId());
+            log.info("{}", map.get("memberEmail").toString());
+            Long currentMemberId = memberService.getMemberIdByMemberEmail(map.get("memberEmail").toString());
+            SomLikeVO somLikeVO = new SomLikeVO();
+            somLikeVO.setSomId(som.getId());
+            somLikeVO.setMemberId(currentMemberId);
             if(somImages.isEmpty()){
                 SomImageVO somImageVO = new SomImageVO();
                 somImageVO.setSomImagePath("https://image-server.ideaflow.co.kr/uploads/1762700261.jpg");
@@ -94,7 +106,8 @@ public class SomServiceImpl implements SomService {
                 somImageVO.setSomImageName("1762700261.jpg");
                 somImages.add(somImageVO);
             }
-            log.info("{}", memberService.getMemberById(somResponseDTO.getMemberId()));
+            somResponseDTO.setSomLike(somDAO.selectSomLikeCount(som.getId()));
+            somResponseDTO.setIsSomLike(somDAO.selectIsSomLike(somLikeVO));
             somResponseDTO.setMemberSomLeader(new MemberSomLeaderResponseDTO(memberService.getMemberById(somResponseDTO.getMemberId())));
             somResponseDTO.setSomCount(somDAO.readSomJoinList(som.getId()).size());
             somResponseDTO.setSomJoinList(somDAO.readSomJoinList(som.getId()));
@@ -135,5 +148,25 @@ public class SomServiceImpl implements SomService {
     @Override
     public void deleteSomJoin(Long somJoinId) {
         somDAO.deleteSomJoin(somJoinId);
+    }
+
+    @Override
+    public void insertSomLike(SomLikeVO somLikeVO){
+        somDAO.insertSomLike(somLikeVO);
+    }
+
+    @Override
+    public Integer selectSomLikeCount(Long somId){
+        return somDAO.selectSomLikeCount(somId);
+    }
+
+    @Override
+    public Boolean selectIsSomLike(SomLikeVO somLikeVO) {
+        return somDAO.selectIsSomLike(somLikeVO);
+    }
+
+    @Override
+    public void deleteSomLike(SomLikeVO somLikeVO) {
+        somDAO.deleteSomLike(somLikeVO);
     }
 }
