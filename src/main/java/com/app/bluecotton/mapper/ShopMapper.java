@@ -72,4 +72,9 @@ public interface ShopMapper {
     // 마이페이지 배송현황 구매 취소
     public void deleteMyDeliveryProduct(Long id);
 
+
+    // 구매하기 유효성 검사
+
+
+
 }

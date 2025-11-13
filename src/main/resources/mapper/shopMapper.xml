@@ -411,6 +411,29 @@
         WHERE ID = #{id}
     </delete>
 
+    <!-- 리뷰하기 유효성 검사  -->
+    <select id="existProductReview" parameterType="map" resultType="">
+        SELECT
+        ID, PRODUCT_REVIEW_CREATE_AT, PRODUCT_REVIEW_RATING, PRODUCT_REVIEW_CONTENT, MEMBER_ID, PRODUCT_ID,
+        (
+        SELECT
+        CASE
+        WHEN EXISTS (
+        SELECT
+        ID, PRODUCT_REVIEW_CREATE_AT, PRODUCT_REVIEW_RATING, PRODUCT_REVIEW_CONTENT, MEMBER_ID, PRODUCT_ID
+        FROM TBL_PRODUCT_REVIEW
+        WHERE
+        PRODUCT_ID = #{productId}
+        AND
+        MEMBER_ID = #{memberId}
+        )
+        THEN 1
+        ELSE 0
+        END
+        FROM DUAL
+        ) AS PRODUCT_REVIEW_EXISTS
+        FROM TBL_PRODUCT_REVIEW
+    </select>
 
 
 
