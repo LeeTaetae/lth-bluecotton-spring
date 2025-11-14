@@ -1,6 +1,7 @@
 package com.app.bluecotton.mapper;
 
 import com.app.bluecotton.domain.dto.*;
+import com.app.bluecotton.domain.vo.shop.ProductReviewReportVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,12 +14,19 @@ public interface ShopMapper {
     // 메인 페이지 상품 조건 조회
     public List<ProductListResponseDTO> selectProductsByFilter(Map<String,Object> filterParams);
 
+
+
     // 메인 페이지 상품 찜하기 추가
     public void insertMyLikedProduct(@Param("memberId") Long memberId , @Param("productId") Long productId);
 
 
     // 상세 페이지 상품 상단 조회
     public ProductDetailResponseDTO selectProductDetailHeader(Map<String,Object> likeParams);
+
+
+    // 상세 페이지 상품 상단 찜하기 로직
+    public ProductDetailResponseDTO selectProductDetailHeaderLike(Map<String,Object> like);
+
 
     // 상세 페이지 상품 정보 조회
     public ProductInfoDetailResponseDTO selectProductDetailInfo(Long id);
@@ -69,5 +77,18 @@ public interface ShopMapper {
 
     // 마이페이지 배송현황 구매 취소
     public void deleteMyDeliveryProduct(Long id);
+
+
+    // 구매하기 유효성 검사
+    public int existProductReview(Map<String,Object> reviewParams);
+
+
+    // 상품 리뷰 댓글 신고
+    public void productReviewReport(ProductReviewReportVO productReviewReportVO);
+
+
+    // 리뷰 댓글 도움돼요 상태 여부 조회
+    public ProductReviewRecommendDTO selectProductReviewRecommend(Map<String,Object> recommend);
+
 
 }

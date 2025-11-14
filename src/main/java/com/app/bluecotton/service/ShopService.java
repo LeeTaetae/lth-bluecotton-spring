@@ -1,6 +1,7 @@
 package com.app.bluecotton.service;
 
 import com.app.bluecotton.domain.dto.*;
+import com.app.bluecotton.domain.vo.shop.ProductReviewReportVO;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,9 @@ public interface ShopService {
 
     // 상세 페이지 상단 조회
     public ProductDetailResponseDTO getProductDetailHeader(Long id, Long memberId);
+
+    // 상세 페이지 상품 상단 찜하기 로직
+    public ProductDetailResponseDTO getProductDetailLike(Long productId, Long memberId);
 
     // 상세 페이지 상품 정보 조회
     public ProductInfoDetailResponseDTO getProductDetailInfo(Long id);
@@ -57,8 +61,20 @@ public interface ShopService {
     // 마이페이지(샵) 배송현황 전체 조회
     public List<MyPageDeliveryListDTO> getMyDeliveryList(Long memberId);
 
-
     // 마이페이지(샵) 배송현황 전체 조회
     public void deleteMyDeliveryProduct(Long id);
+
+
+    // 리뷰 작성 유효성 검사
+    public int existProductReview(Long productId, Long memberId);
+
+    public void writeReview(MyPageReviewWriteDTO dto);
+
+    // 상품 리뷰 댓글 신고하기
+    public void reportProductReview(ProductReviewReportVO productReviewReportVO);
+
+
+    // 리뷰 댓글 도움돼요 상태 여부 조회
+    public ProductReviewRecommendDTO ProductReviewRecommendDTO(Map<String,Object> recommend);
 
 }
