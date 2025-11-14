@@ -555,7 +555,7 @@
         WHERE TBP.ID = #{postId}
     </select>
 
-    <!-- 게시글 댓글 조회 -->
+    <!-- 게시물 댓글 조회-->
     <select id="selectComment"
             parameterType="map"
             resultType="com.app.bluecotton.domain.dto.post.PostCommentDTO">
@@ -575,10 +575,7 @@
         (SELECT COUNT(*)
         FROM TBL_POST_COMMENT_LIKE
         WHERE POST_COMMENT_ID = TBC.ID
-        AND MEMBER_ID = #{memberId}) AS IS_COMMENT_LIKED,
-
-        NVL(TBM.MEMBER_PICTURE_PATH || TBM.MEMBER_PICTURE_NAME,
-        '/images/default_profile.png') AS MEMBER_PROFILE_URL
+        AND MEMBER_ID = #{memberId}) AS IS_COMMENT_LIKED
 
         FROM TBL_POST_COMMENT TBC
         JOIN TBL_MEMBER TBM ON TBC.MEMBER_ID = TBM.ID
@@ -587,8 +584,11 @@
     </select>
 
 
-    <!-- 게시글 답글 조회 -->
-    <select id="selectReply" parameterType="map" resultType="com.app.bluecotton.domain.dto.post.PostReplyDTO">
+    <!-- 게시물 답글 조회-->
+    <select id="selectReply"
+            parameterType="map"
+            resultType="com.app.bluecotton.domain.dto.post.PostReplyDTO">
+
         SELECT
         TPR.ID,
         TPR.POST_REPLY_CONTENT,
@@ -604,14 +604,11 @@
         (SELECT COUNT(*)
         FROM TBL_POST_REPLY_LIKE
         WHERE POST_REPLY_ID = TPR.ID
-        AND MEMBER_ID = #{memberId}) AS IS_REPLY_LIKED,
-
-        NVL(TBM.MEMBER_PICTURE_PATH || TBM.MEMBER_PICTURE_NAME,
-        '/images/default_profile.png') AS MEMBER_PROFILE_URL
+        AND MEMBER_ID = #{memberId}) AS IS_REPLY_LIKED
 
         FROM TBL_POST_REPLY TPR
         JOIN TBL_MEMBER TBM ON TPR.MEMBER_ID = TBM.ID
-        WHERE TPR.POST_COMMENT_ID = #{postCommentId}
+        WHERE TPR.POST_COMMENT_ID = #{commentId}
         ORDER BY TPR.ID ASC
     </select>
 
