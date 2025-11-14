@@ -1,6 +1,7 @@
 package com.app.bluecotton.service;
 
 import com.app.bluecotton.domain.dto.*;
+import com.app.bluecotton.domain.vo.shop.ProductReviewReportVO;
 import com.app.bluecotton.repository.ShopDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,12 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public ProductDetailResponseDTO getProductDetailHeader(Long id, Long memberId) {
         return shopDAO.findProductDetailHeader(id, memberId);
+    }
+
+    @Override
+    public ProductDetailResponseDTO getProductDetailLike(Long productId, Long memberId) {
+        toggleLike(memberId, productId);
+        return shopDAO.findProductDetailHeaderLike(productId, memberId);
     }
 
     @Override
@@ -107,6 +114,37 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public void deleteMyDeliveryProduct(Long id) {
         shopDAO.deleteMyDeliveryProduct(id);
+    }
+
+    // 리뷰 유효성 검사
+    @Override
+    public int existProductReview(Long productId, Long memberId) {
+        return shopDAO.existProductReview(productId, memberId);
+    }
+
+    // 리뷰 작성
+    @Override
+    public void writeReview(MyPageReviewWriteDTO dto) {
+
+        // 백엔드에서 유효성 검사
+        int exist = shopDAO.existProductReview(dto.getProductId(), dto.getMemberId());
+        if (exist == 1) {
+            throw new IllegalStateException("이미 리뷰를 작성했습니다.");
+        }
+
+        // 문제 없다면 리뷰 저장
+        shopDAO.insertMyReview(dto);
+
+    }
+
+    @Override
+    public void reportProductReview(ProductReviewReportVO productReviewReportVO) {
+        shopDAO.reportProductReview(productReviewReportVO);
+    }
+
+    @Override
+    public ProductReviewRecommendDTO ProductReviewRecommendDTO(Map<String, Object> recommend) {
+        return null;
     }
 
 

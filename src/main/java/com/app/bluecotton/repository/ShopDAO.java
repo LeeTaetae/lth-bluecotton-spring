@@ -1,6 +1,7 @@
 package com.app.bluecotton.repository;
 
 import com.app.bluecotton.domain.dto.*;
+import com.app.bluecotton.domain.vo.shop.ProductReviewReportVO;
 import com.app.bluecotton.mapper.ShopMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.annotations.Param;
@@ -28,12 +29,20 @@ public class ShopDAO {
 
 
     // 상세 페이지 상단 조회
-    public ProductDetailResponseDTO findProductDetailHeader(Long id, Long  memberId) {
+    public ProductDetailResponseDTO findProductDetailHeader(Long id, Long memberId) {
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
         params.put("memberId", memberId);
 
         return shopMapper.selectProductDetailHeader(params);
+    }
+
+    // 상세 페이지 상품 상단 찜하기 로직
+    public ProductDetailResponseDTO findProductDetailHeaderLike(Long productId, Long memberId) {
+        Map<String, Object> likeParams = new HashMap<>();
+        likeParams.put("productId", productId);
+        likeParams.put("memberId", memberId);
+        return shopMapper.selectProductDetailHeaderLike(likeParams);
     }
 
     // 상세 페이지 상품 정보 조회
@@ -113,5 +122,22 @@ public class ShopDAO {
     public void deleteMyDeliveryProduct(Long id){
         shopMapper.deleteMyDeliveryProduct(id);
     }
+
+
+    // 구매하기 유효성 검사
+    public int existProductReview(Long productId, Long memberId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("productId", productId);
+        params.put("memberId", memberId);
+        return shopMapper.existProductReview(params);
+    }
+
+
+    // 상품 리뷰 댓글 신고하기
+    public void reportProductReview(ProductReviewReportVO productReviewReportVO) {
+        shopMapper.productReviewReport(productReviewReportVO);
+    }
+
+
 
 }

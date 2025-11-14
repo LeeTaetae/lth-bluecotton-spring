@@ -1,6 +1,7 @@
 package com.app.bluecotton.api.privateapi;
 
 import com.app.bluecotton.domain.dto.*;
+import com.app.bluecotton.domain.vo.shop.ProductReviewReportVO;
 import com.app.bluecotton.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class ShopApi {
 
 
     // 찜하기 토글
-    @PostMapping("/like/toggle")
+    @PostMapping("like/toggle")
     public ResponseEntity<ApiResponseDTO> toggleLike(@RequestBody Map<String, Long> toggle) {
         Long memberId = toggle.get("memberId");
         Long productId = toggle.get("productId");
@@ -45,6 +46,14 @@ public class ShopApi {
         ProductDetailResponseDTO productDetailResponseDTO = shopService.getProductDetailHeader(id, memberId);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("상세 페이지 상단 조회 성공", productDetailResponseDTO));
+    }
+
+    // 상세 페이지 상단 찜하기
+    @PostMapping("read/like/{productId}/{memberId}")
+    public ResponseEntity<ApiResponseDTO> likeProduct(@PathVariable Long productId, @PathVariable Long memberId) {
+        log.info("상세 페이지 찜하기 요청 들어옴 productId:{} , memberId:{}",productId,memberId);
+        ProductDetailResponseDTO productDetailResponseDTO = shopService.getProductDetailLike(productId, memberId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("상세 페이지 찜하기 성공", productDetailResponseDTO));
     }
 
     // 상세 페이지 상품 정보 조회
@@ -78,6 +87,16 @@ public class ShopApi {
     }
 
 
+    // 상품 리뷰 댓글 신고
+    @PostMapping("read/review/report")
+    public ResponseEntity<ApiResponseDTO> createProductReview(@RequestBody ProductReviewReportVO productReviewReportVO){
+        shopService.reportProductReview(productReviewReportVO);
+        return ResponseEntity.status(HttpStatus.OK).body((ApiResponseDTO.of("댓글 신고 완료", productReviewReportVO)));
+    }
+
+
+    // 리뷰 댓글 도움돼요 상태 여부 조회
+//    @GetMapping("review")
 
 
 }
