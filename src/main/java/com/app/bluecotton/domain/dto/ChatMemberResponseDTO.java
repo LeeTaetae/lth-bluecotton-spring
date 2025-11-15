@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 public class ChatMemberResponseDTO {
     private Long id;
+    private Long chatId;
+    private Long memberId;
     private String memberName;
-    private String chatMemberRole;
 }
