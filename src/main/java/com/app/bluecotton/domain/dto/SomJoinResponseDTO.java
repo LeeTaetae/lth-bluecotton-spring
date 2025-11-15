@@ -9,6 +9,7 @@ import lombok.*;
 public class SomJoinResponseDTO {
     private Long id;
     private Long somId;
+    private Long memberId;
     private String memberNickname;
     private String memberName;
     private String memberProfilePath;

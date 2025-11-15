@@ -4,6 +4,7 @@ import com.app.bluecotton.domain.dto.MemberSomLeaderResponseDTO;
 import com.app.bluecotton.domain.dto.SomJoinResponseDTO;
 import com.app.bluecotton.domain.dto.SomReadResponseDTO;
 import com.app.bluecotton.domain.dto.SomResponseDTO;
+import com.app.bluecotton.domain.vo.member.MemberProfileVO;
 import com.app.bluecotton.domain.vo.som.SomImageVO;
 import com.app.bluecotton.domain.vo.som.SomJoinVO;
 import com.app.bluecotton.domain.vo.som.SomLikeVO;
@@ -27,6 +28,8 @@ public class SomServiceImpl implements SomService {
     private final SomDAO somDAO;
     private final SomImageService somImageService;
     private final MemberService memberService;
+    private final ChatService chatService;
+    private final ChatMemberService chatMemberService;
 
     //  솜 등록
     @Override
@@ -46,6 +49,8 @@ public class SomServiceImpl implements SomService {
         List<SomImageVO> somImages = somImageService.selectImagesBySomId(somId);
         Long currentMemberId = memberService.getMemberIdByMemberEmail(memberEmail);
         SomLikeVO somLikeVO = new SomLikeVO();
+        MemberSomLeaderResponseDTO memberSomLeaderResponseDTO = new MemberSomLeaderResponseDTO(memberService.getMemberById(somResponseDTO.getMemberId()));
+        MemberProfileVO memberProfileVO = memberService.getMemberProfileImage(somResponseDTO.getMemberId());
         somLikeVO.setSomId(somId);
         somLikeVO.setMemberId(currentMemberId);
         if(somImages.isEmpty()){
@@ -55,8 +60,10 @@ public class SomServiceImpl implements SomService {
             somImageVO.setSomImageName("1762700261.jpg");
             somImages.add(somImageVO);
         }
+        memberSomLeaderResponseDTO.setMemberPictureName(memberProfileVO.getMemberProfileName());
+        memberSomLeaderResponseDTO.setMemberPicturePath(memberProfileVO.getMemberProfilePath());
         somResponseDTO.setIsSomLike(somDAO.selectIsSomLike(somLikeVO));
-        somResponseDTO.setMemberSomLeader(new MemberSomLeaderResponseDTO(memberService.getMemberById(somResponseDTO.getMemberId())));
+        somResponseDTO.setMemberSomLeader(memberSomLeaderResponseDTO);
         somResponseDTO.setSomJoinList(somDAO.readSomJoinList(somId));
         somResponseDTO.setSomImageList(somImages);
 
@@ -90,6 +97,8 @@ public class SomServiceImpl implements SomService {
             List<SomImageVO> somImages = somImageService.selectImagesBySomId(som.getId());
             Long currentMemberId = memberService.getMemberIdByMemberEmail(map.get("memberEmail").toString());
             SomLikeVO somLikeVO = new SomLikeVO();
+            MemberSomLeaderResponseDTO memberSomLeaderResponseDTO = new MemberSomLeaderResponseDTO(memberService.getMemberById(som.getMemberId()));
+            MemberProfileVO memberProfileVO = memberService.getMemberProfileImage(som.getMemberId());
             somLikeVO.setSomId(som.getId());
             somLikeVO.setMemberId(currentMemberId);
             if(somImages.isEmpty()){
@@ -99,8 +108,10 @@ public class SomServiceImpl implements SomService {
                 somImageVO.setSomImageName("1762700261.jpg");
                 somImages.add(somImageVO);
             }
+            memberSomLeaderResponseDTO.setMemberPictureName(memberProfileVO.getMemberProfileName());
+            memberSomLeaderResponseDTO.setMemberPicturePath(memberProfileVO.getMemberProfilePath());
+            som.setMemberSomLeader(memberSomLeaderResponseDTO);
             som.setIsSomLike(somDAO.selectIsSomLike(somLikeVO));
-            som.setMemberSomLeader(new MemberSomLeaderResponseDTO(memberService.getMemberById(som.getMemberId())));
             som.setSomJoinList(somDAO.readSomJoinList(som.getId()));
             som.setSomImageList(somImages);
             return som;
@@ -128,7 +139,34 @@ public class SomServiceImpl implements SomService {
 
     @Override
     public void registerSomJoin(SomJoinVO somJoinVO) {
+        // 1. 솜 참여 처리
         somDAO.insertSomJoin(somJoinVO);
+        
+        // 2. 솜 정보 조회 (채팅방 제목을 위해)
+        SomResponseDTO somInfo = somDAO.findById(somJoinVO.getSomId())
+                .orElseThrow(() -> new SomException("솜 정보를 찾을 수 없습니다."));
+        
+        // 3. 해당 솜의 채팅방 찾기 (채팅방 제목 = 솜 제목)
+        Long chatId = chatService.getChatIdByTitle(somInfo.getSomTitle());
+        
+        // 4. 채팅방이 존재하면 자동으로 채팅방에 참여
+        if (chatId != null) {
+            com.app.bluecotton.domain.vo.chat.ChatMemberVO chatMemberVO = 
+                    new com.app.bluecotton.domain.vo.chat.ChatMemberVO();
+            chatMemberVO.setChatId(chatId);
+            chatMemberVO.setMemberId(somJoinVO.getMemberId());
+            chatMemberVO.setChatMemberRole("USER");
+            chatMemberVO.setChatMemberStatus("ACTIVE");
+            
+            // 채팅방 참여 (이미 참여 중이면 중복 방지됨)
+            Integer existingCount = chatMemberService.exists(chatMemberVO);
+            if (existingCount == 0) {
+                chatMemberService.createChatMember(chatMemberVO);
+                log.info("솜 참여 시 채팅방 자동 참여 완료 - chatId: {}, memberId: {}", chatId, somJoinVO.getMemberId());
+            } else {
+                log.info("이미 채팅방에 참여 중 - chatId: {}, memberId: {}", chatId, somJoinVO.getMemberId());
+            }
+        }
     }
 
     @Override
