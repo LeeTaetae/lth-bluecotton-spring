@@ -1,5 +1,6 @@
 package com.app.bluecotton.repository;
 
+import com.app.bluecotton.domain.dto.MyShopOrderDTO;
 import com.app.bluecotton.domain.vo.shop.PaymentStatus;
 import com.app.bluecotton.domain.vo.shop.PaymentVO;
 import com.app.bluecotton.mapper.PaymentMapper;
@@ -67,5 +68,9 @@ public class PaymentDAO {
 
     public int updateMemberCandy(Long memberId, @Param("amount") int amount) {
         return paymentMapper.updateMemberCandy(memberId, amount);
+    }
+
+    public List<MyShopOrderDTO> findCompletedOrdersByMemberId(Long memberId) {
+        return paymentMapper.selectCompletedOrdersByMemberId(memberId);
     }
 }

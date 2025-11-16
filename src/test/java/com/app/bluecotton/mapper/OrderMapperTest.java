@@ -25,7 +25,7 @@ public class OrderMapperTest {
         OrderDTO dto = new OrderDTO();
         dto.setMemberId(2L);
         dto.setProductId(1L);
-        dto.setQuantity(3);
+        dto.setOrderQuantity(3);
         dto.setOrderStatus('Y');
         orderMapper.insertSingle(dto);
         log.info("✅ 단일 주문 등록 성공: {}", dto);
@@ -38,7 +38,7 @@ public class OrderMapperTest {
         orderCartDTO.setProductId(1L);
         orderCartDTO.setCartId(5L);
         orderCartDTO.setOrderStatus('Y'); // boolean → SQL에서 Y/N 변환
-        orderCartDTO.setQuantity(1);
+        orderCartDTO.setOrderQuantity(1);
 
         orderMapper.insertCartOrder(orderCartDTO);
 

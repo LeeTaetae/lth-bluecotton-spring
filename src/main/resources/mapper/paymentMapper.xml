@@ -63,6 +63,28 @@
         WHERE MERCHANT_UID = #{merchantUid}
     </select>
 
+    <select id="selectCompletedOrdersByMemberId"
+            parameterType="long"
+            resultType="com.app.bluecotton.domain.dto.MyShopOrderDTO">
+
+        SELECT
+        o.ID                      AS orderId,
+        o.PRODUCT_ID              AS productId,
+        p.PRODUCT_NAME            AS productName,
+        o.ORDER_CREATE_AT         AS orderCreateAt,
+        pay.PAYMENT_STATUS        AS paymentStatus,
+        o.ORDER_STATUS            AS orderStatus
+        FROM TBL_ORDER o
+        JOIN TBL_PRODUCT p
+        ON p.ID = o.PRODUCT_ID
+        JOIN TBL_PAYMENT pay
+        ON pay.ORDER_ID = o.ID
+        WHERE o.MEMBER_ID = #{memberId}
+        AND pay.PAYMENT_STATUS = 'COMPLETED'
+        ORDER BY o.ID DESC
+    </select>
+
+
     <update id="updateStatusByMerchantUid">
         UPDATE TBL_PAYMENT
         SET PAYMENT_STATUS = #{status}

@@ -4,14 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DailyRevenue {
-
-    private String payDate;
-
-    private Long revenue;
+public class RevenueDashboardResponse {
+    private List<DailyRevenue> history;
+    private List<RevenueForecastPoint> forecast;
 }

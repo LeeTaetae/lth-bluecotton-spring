@@ -1,10 +1,8 @@
 package com.app.bluecotton.service;
 
-import com.app.bluecotton.domain.dto.PaymentPrepareRequest;
-import com.app.bluecotton.domain.dto.PaymentVerifyRequest;
-import com.app.bluecotton.domain.dto.PortOneDTO;
-import com.app.bluecotton.domain.dto.PortOneResponse;
+import com.app.bluecotton.domain.dto.*;
 
+import java.util.List;
 import java.util.Map;
 
 public interface PaymentService {
@@ -20,4 +18,6 @@ public interface PaymentService {
 //    public void payAllPendingCandyOrders(Long memberId);
 
     public void payWithCandy(Long memberId, Long orderId);
+
+    public List<MyShopOrderDTO> findCompletedOrdersByMemberId(Long memberId);
 }

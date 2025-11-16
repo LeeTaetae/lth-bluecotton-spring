@@ -1,9 +1,6 @@
 package com.app.bluecotton.service;
 
-import com.app.bluecotton.domain.dto.PaymentPrepareRequest;
-import com.app.bluecotton.domain.dto.PaymentVerifyRequest;
-import com.app.bluecotton.domain.dto.PortOneDTO;
-import com.app.bluecotton.domain.dto.PortOneResponse;
+import com.app.bluecotton.domain.dto.*;
 import com.app.bluecotton.domain.vo.shop.OrderVO;
 import com.app.bluecotton.domain.vo.shop.PaymentSocialVO;
 import com.app.bluecotton.domain.vo.shop.PaymentStatus;
@@ -273,6 +270,11 @@ public class PaymentServiceImpl implements PaymentService {
 
 
 
+    }
+
+    @Override
+    public List<MyShopOrderDTO> findCompletedOrdersByMemberId(Long memberId) {
+        return  paymentDAO.findCompletedOrdersByMemberId(memberId);
     }
 
 

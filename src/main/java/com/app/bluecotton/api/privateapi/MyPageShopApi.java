@@ -1,6 +1,7 @@
 package com.app.bluecotton.api.privateapi;
 
 import com.app.bluecotton.domain.dto.*;
+import com.app.bluecotton.service.PaymentService;
 import com.app.bluecotton.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class MyPageShopApi {
 
     final ShopService shopService;
+    private final PaymentService paymentService;
 
     @GetMapping("like/{memberId}")
     public ResponseEntity<ApiResponseDTO> getLikedProducts(@PathVariable Long memberId){
@@ -49,10 +51,14 @@ public class MyPageShopApi {
     }
 
     @GetMapping("order")
-    public ResponseEntity<ApiResponseDTO> getMyOrders(@RequestParam Long memberId){
-        log.info("구매내역 전체조회", memberId);
-        List<MyPageOrderListDTO>  myOrders = shopService.getMyOrders(memberId);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponseDTO.of("구매내역 전체 조회 성공", myOrders));
+    public ResponseEntity<ApiResponseDTO<List<MyShopOrderDTO>>> getMyShopOrders(
+            @RequestParam Long memberId
+    ) {
+        log.info("[MyShopApi] 구매내역 조회 memberId={}", memberId);
+        List<MyShopOrderDTO> list = paymentService.findCompletedOrdersByMemberId(memberId);
+        return ResponseEntity.ok(
+                ApiResponseDTO.of("구매내역 전체 조회 성공", list)
+        );
     }
 
 

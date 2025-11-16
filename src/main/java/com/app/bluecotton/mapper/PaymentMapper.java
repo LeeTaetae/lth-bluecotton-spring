@@ -1,5 +1,6 @@
 package com.app.bluecotton.mapper;
 
+import com.app.bluecotton.domain.dto.MyShopOrderDTO;
 import com.app.bluecotton.domain.vo.shop.PaymentStatus;
 import com.app.bluecotton.domain.vo.shop.PaymentVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -39,5 +40,6 @@ public interface PaymentMapper {
 
     public int updateMemberCandy(Long memberId, @Param("amount") int amount);
 
+    public List<MyShopOrderDTO> selectCompletedOrdersByMemberId(Long memberId);
 }
 

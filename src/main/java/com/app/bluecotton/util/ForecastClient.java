@@ -2,7 +2,10 @@ package com.app.bluecotton.util;
 
 import com.app.bluecotton.domain.dto.DailyRevenue;
 import com.app.bluecotton.domain.dto.ForecastRequest;
+import com.app.bluecotton.domain.dto.RevenueForecastPoint;
 import com.app.bluecotton.domain.dto.RevenueForecastResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,52 +22,69 @@ import java.util.stream.Collectors;
 public class ForecastClient {
 
     private final RestTemplate restTemplate;
-    
-    @Value("${forecast.api.url}")
-    private String forecastApiUrl;
+    private final ObjectMapper objectMapper;   // ✅ 스프링이 자동으로 주입해 줌
+
+    @Value("${forecast.url:http://localhost:8001/forecast}")
+    private String forecastUrl;
 
     /**
-     * FastAPI 예측 서버 호출
-     *
-     * @param history 과거 매출 데이터
-     * @param horizon 며칠 뒤까지 예측할지
-     * @return 예측 결과 (없으면 빈 객체)
+     * FastAPI /forecast 호출
      */
     public RevenueForecastResponse requestForecast(List<DailyRevenue> history, int horizon) {
 
-        // DailyRevenue -> ForecastRequest.Point 로 변환
+        // 1) 요청 DTO 만들기
+        ForecastRequest request = new ForecastRequest();
+        request.setHorizon(horizon);
+
         List<ForecastRequest.Point> series = history.stream()
-                .map(d -> new ForecastRequest.Point(
-                        d.getDate().toString(), // LocalDate -> "YYYY-MM-DD"
-                        d.getRevenue()
-                ))
+                .map(d -> {
+                    ForecastRequest.Point p = new ForecastRequest.Point();
+                    p.setDate(d.getPayDate());          // "yyyy-MM-dd"
+                    p.setRevenue(d.getRevenue());    // Long
+                    return p;
+                })
                 .collect(Collectors.toList());
 
-        ForecastRequest body = new ForecastRequest(series, horizon);
+        request.setSeries(series);
 
+        // 2) JSON 직렬화 + 로그
+        String jsonBody;
+        try {
+            jsonBody = objectMapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            log.error("[ForecastClient] 요청 직렬화 실패", e);
+            return new RevenueForecastResponse(); // data == null
+        }
+
+        log.info("[ForecastClient] 예측 요청 URL={}, horizon={}, series.size={}, body={}",
+                forecastUrl, horizon, series.size(), jsonBody);
+
+        // 3) 헤더 & HttpEntity
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<ForecastRequest> entity = new HttpEntity<>(body, headers);
+        // ✅ String(JSON) 을 body로 직접 넣는다.
+        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
 
         try {
-            ResponseEntity<RevenueForecastResponse> response = restTemplate.exchange(
-                    forecastApiUrl,                      // ex) http://localhost:8000/forecast
-                    HttpMethod.POST,
-                    entity,
-                    RevenueForecastResponse.class
-            );
+            ResponseEntity<RevenueForecastResponse> response =
+                    restTemplate.exchange(
+                            forecastUrl,
+                            HttpMethod.POST,
+                            entity,
+                            RevenueForecastResponse.class
+                    );
 
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                log.info("[ForecastClient] 예측 성공: {}건",
-                        response.getBody().getData() != null
-                                ? response.getBody().getData().size()
-                                : 0);
-                return response.getBody();
-            } else {
-                log.warn("[ForecastClient] 예측 실패 status={}", response.getStatusCode());
+            RevenueForecastResponse body = response.getBody();
+            if (body == null) {
+                log.warn("[ForecastClient] 예측 응답 body == null");
                 return new RevenueForecastResponse();
             }
+
+            List<RevenueForecastPoint> data = body.getData();
+            log.info("[ForecastClient] 예측 응답 수신: {}개", data == null ? 0 : data.size());
+
+            return body;
 
         } catch (Exception e) {
             log.error("[ForecastClient] 예측 요청 중 예외 발생", e);
