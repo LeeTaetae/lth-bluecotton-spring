@@ -20,7 +20,9 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public void createChat(ChatVO chatVO) {
-        chatDAO.save(chatVO);
+        if (!chatVO.getChatType().equals("JOIN")) {
+            chatDAO.save(chatVO);
+        }
     }
 
     @Override
@@ -42,7 +44,12 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<ChatVO> selectChatListByMember(Long memberId) {
-        return chatDAO.findByMemberId(memberId);
+        List<ChatVO> chatVO = chatDAO.findByMemberId(memberId).stream().map((content) -> {
+            content.setMembers(chatMemberDAO.selectIdByMemberListChatId(content.getId()));
+            return content;
+        }).toList();
+
+        return chatVO;
     }
 
     @Override
