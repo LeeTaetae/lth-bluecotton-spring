@@ -39,7 +39,7 @@ public class ForecastClient {
         List<ForecastRequest.Point> series = history.stream()
                 .map(d -> {
                     ForecastRequest.Point p = new ForecastRequest.Point();
-                    p.setDate(d.getPayDate());          // "yyyy-MM-dd"
+                    p.setDate(d.getDate());          // "yyyy-MM-dd"
                     p.setRevenue(d.getRevenue());    // Long
                     return p;
                 })
